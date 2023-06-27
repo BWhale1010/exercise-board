@@ -5,20 +5,20 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Getter
 @ToString(callSuper = true)
 @Table(indexes = {
         @Index(columnList = "email", unique = true),
         @Index(columnList = "createdAt"),
-        @Index(columnList = "createdBy")
+        @Index(columnList = "createBy")
 })
 @Entity
 public class UserAccount extends AuditingFields{
     @Id
     @Column(length = 50)
-    private long userId; // 유저 아이디
+    private String userId; // 유저 아이디
 
     @Setter
     @Column(nullable = false)
@@ -37,5 +37,33 @@ public class UserAccount extends AuditingFields{
 
     protected UserAccount(){}
 
+    public UserAccount(String userId, String user_password, String email, String nickname, String memo, String createBy) {
+        this.userId = userId;
+        this.user_password = user_password;
+        this.email = email;
+        this.nickname = nickname;
+        this.memo = memo;
+        this.createBy = createBy;
+        this.modifiedBy = createBy;
+    }
 
+    public static UserAccount of(String userId, String userPassword, String email, String nickname, String memo) {
+        return UserAccount.of(userId, userPassword, email, nickname, memo, null);
+    }
+
+    public static UserAccount of(String userId, String userPassword, String email, String nickname, String memo, String createdBy) {
+        return new UserAccount(userId, userPassword, email, nickname, memo, createdBy);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof UserAccount that)) return false;
+        return this.getUserId() != null && this.getUserId().equals(that.getUserId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getUserId());
+    }
 }
